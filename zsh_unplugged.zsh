@@ -1,6 +1,6 @@
 # zsh_unplugged - https://github.com/mattmc3/zsh_unplugged
 #
-# A simple, fast, minimalist Zsh plugin management function in <20 lines of code.
+# A simple, fast, minimalist Zsh plugin management function in ~30 lines of code.
 #
 # Usage:
 # ZPLUGINDIR=${ZDOTDIR:-~}/plugins
@@ -18,7 +18,8 @@
 # plugin-load $repos
 #
 
-##? Clone a plugin using it's github repo and (optionally) commit sha, identify its init file, source it, and add it to your fpath.
+##? Clone a plugin using its github repo and (optionally) commit sha,
+##? identify its init file, source it, and add it to your fpath.
 function plugin-load {
   local plugin repo commitsha plugdir initfile initfiles=() clone_args=()
   : ${ZPLUGINDIR:=${ZDOTDIR:-~/.config/zsh}/plugins}

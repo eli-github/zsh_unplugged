@@ -26,6 +26,7 @@ function plugin-load {
   for plugin in $@; do
     repo="$plugin"
     clone_args=(--quiet --depth 1 --recursive --shallow-submodules)
+    commitsha=""
     # Pin repo to a specific commit sha if provided
     if [[ "$plugin" == *'@'* ]]; then
       repo="${plugin%@*}"

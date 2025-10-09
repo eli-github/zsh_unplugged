@@ -20,11 +20,11 @@
 
 ##? Clone a plugin using it's github repo and (optionally) commit sha, identify its init file, source it, and add it to your fpath.
 function plugin-load {
-  local plugin repo commitsha plugdir initfile initfiles=()
+  local plugin repo commitsha plugdir initfile initfiles=() clone_args=()
   : ${ZPLUGINDIR:=${ZDOTDIR:-~/.config/zsh}/plugins}
   for plugin in $@; do
     repo="$plugin"
-    clone_args=(-q --depth 1 --recursive --shallow-submodules)
+    clone_args=(--quiet --depth 1 --recursive --shallow-submodules)
     # Pin repo to a specific commit sha if provided
     if [[ "$plugin" == *'@'* ]]; then
       repo="${plugin%@*}"
@@ -33,10 +33,6 @@ function plugin-load {
     fi
     plugdir=$ZPLUGINDIR/${repo:t}
     initfile=$plugdir/${repo:t}.plugin.zsh
-    clone_args=(-q --depth 1 --recursive --shallow-submodules)
-    if [[ -n "$commitsha" ]]; then
-      clone_args+=(--no-checkout)
-    fi
     if [[ ! -d $plugdir ]]; then
       echo "Cloning $repo..."
       git clone "${clone_args[@]}" https://github.com/$repo $plugdir

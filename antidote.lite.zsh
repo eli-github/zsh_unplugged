@@ -6,6 +6,27 @@
 # usage:   plugin-load $myplugins
 # version: 0.0.4
 
+# log() {
+#     # [[ "$TRACE" == "true" ]] && >&2 
+#     echo >&2 "[$(date +'%H:%M:%S')] $(caller): $1"
+# }
+
+function log() {
+    # if [[ "$LOG" == "true" ]]; then
+        # local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+        local timestamp=$(date +"%m-%d|%H:%M:%S")
+
+        # Get the caller's information from the stack arrays.
+        # Index -2 refers to the caller of the 'log' function.
+        local caller_func=${funcstack[-2]:-main}
+        local caller_file_line=${funcfiletrace[-2]:-$(basename "$0"):$LINENO}
+
+        # Use Zsh's built-in 'print' for clean output to standard error.
+        print -u2 "[$timestamp] [${caller_file_line}:${caller_func}] $1"
+    # fi
+}
+
+
 # Set variables.
 : ${ANTIDOTE_LITE_HOME:=${XDG_CACHE_HOME:-~/.cache}/antidote.lite}
 : ${ZPLUGINDIR:=${ZSH_CUSTOM:-${ZDOTDIR:-${XDG_CONFIG_HOME:-$HOME/.config}/zsh}}/plugins}
@@ -47,10 +68,11 @@ function plugin-script {
   emulate -L zsh; setopt local_options $_alite_zopts
 
   # parse args
-  local kind  # kind=path,fpath
+  local kind subdir  # kind=path, fpath, subdir
   while (( $# )); do
     case $1 in
       -k|--kind)  shift; kind=$1 ;;
+      -s|--subdir) shift; subdir=$1 ;;
       -*)         echo >&2 "Invalid argument '$1'." && return 2 ;;
       *)          break ;;
     esac
@@ -61,7 +83,14 @@ function plugin-script {
   (( ! $+functions[zsh-defer] )) || src="zsh-defer ."
   for plugin in $@; do
     if [[ -n "$kind" ]]; then
-      echo "$kind=(\$$kind $ANTIDOTE_LITE_HOME/$plugin)"
+      if [[ "$kind" == "subdir" ]]; then
+        [[ -n "$subdir" ]] || { echo >&2 "Subdirectory not specified for kind=subdir." && return 2 }
+        local target_dir="$ANTIDOTE_LITE_HOME/$plugin/$subdir"
+        [[ -d "$target_dir" ]] || { log "Subdirectory '$target_dir' does not exist." && continue }
+        echo "path=(\$path $target_dir)"
+      else
+        echo "$kind=(\$$kind $ANTIDOTE_LITE_HOME/$plugin)"
+      fi
     else
       inits=(
         {$ZPLUGINDIR,$ANTIDOTE_LITE_HOME}/$plugin/${plugin:t}.{plugin.zsh,zsh-theme,zsh,sh}(N)
@@ -78,6 +107,7 @@ function plugin-script {
     fi
   done
 }
+
 
 ##? Update plugins.
 function plugin-update {

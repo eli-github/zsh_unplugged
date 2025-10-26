@@ -73,7 +73,7 @@ function plugin-script {
     case $1 in
       -k|--kind)  shift; kind=$1 ;;
       -s|--subdir) shift; subdir=$1 ;;
-      -*)         echo >&2 "Invalid argument '$1'." && return 2 ;;
+      -*)         log "Invalid argument '$1'." && return 2 ;;
       *)          break ;;
     esac
     shift
@@ -84,7 +84,7 @@ function plugin-script {
   for plugin in $@; do
     if [[ -n "$kind" ]]; then
       if [[ "$kind" == "subdir" ]]; then
-        [[ -n "$subdir" ]] || { echo >&2 "Subdirectory not specified for kind=subdir." && return 2 }
+        [[ -n "$subdir" ]] || { log "Subdirectory not specified for kind=subdir." && return 2 }
         local target_dir="$ANTIDOTE_LITE_HOME/$plugin/$subdir"
         [[ -d "$target_dir" ]] || { log "Subdirectory '$target_dir' does not exist." && continue }
         echo "path=(\$path $target_dir)"
@@ -99,7 +99,7 @@ function plugin-script {
         ${plugin}/*.{plugin.zsh,zsh-theme,zsh,sh}(N)
         ${plugin}(N)
       )
-      (( $#inits )) || { echo >&2 "No plugin init found '$plugin'." && continue }
+      (( $#inits )) || { log "No plugin init found '$plugin'." && continue }
       plugin=$inits[1]
       echo "fpath=(\$fpath $plugin:h)"
       echo "$src $plugin"

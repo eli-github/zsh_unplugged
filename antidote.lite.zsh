@@ -84,9 +84,9 @@ function plugin-script {
   for plugin in $@; do
     if [[ -n "$kind" ]]; then
       if [[ "$kind" == "subdir" ]]; then
-        [[ -n "$subdir" ]] || { log "Subdirectory not specified for kind=subdir." && return 2 }
+        [[ -n "$subdir" ]] || { log "subdir not specified for kind=subdir." && return 2 }
         local target_dir="$ANTIDOTE_LITE_HOME/$plugin/$subdir"
-        [[ -d "$target_dir" ]] || { log "Subdirectory '$target_dir' does not exist." && continue }
+        [[ -d "$target_dir" ]] || { log "subder '$target_dir' does not exist." && continue }
         echo "path=(\$path $target_dir)"
       else
         echo "$kind=(\$$kind $ANTIDOTE_LITE_HOME/$plugin)"
